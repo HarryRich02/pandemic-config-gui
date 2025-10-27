@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pandemic-config-gui"
+version = "0.1.0"
+description = "A configuration GUI for a pandemic simulation tool."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Harry Richards", email = "harryrichards2202@gmail.com" }
+]
+dependencies = [
+    "customtkinter",
+    "tknodesystem"
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
