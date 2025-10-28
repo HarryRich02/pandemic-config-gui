@@ -1,0 +1,57 @@
+title: Configuration example
+
+disease:
+  model: "covid19"  # Options: "covid19", "measles", "ev-d68-v", "mpox"
+
+features:
+  friend_hangouts:
+    enabled: false
+  test_and_trace:
+    enabled: false
+  ratty_dynamics:
+    enabled: false
+    save_data: false   
+  sexual_encounters:
+    enabled: false
+
+time:
+  total_days: 15
+  initial_day: "2020-02-27 8:00" 
+  step_duration: 
+      weekday:
+          0: 1 
+          1: 8
+          2: 1
+          3: 3
+          4: 11
+      weekend:
+          0: 4 
+          1: 4 
+          2: 4 
+          3: 12 
+  step_activities:
+      weekday:
+          0: ['medical_facility', 'residence', 'commute'] 
+          1: ['medical_facility', 'primary_activity', 'leisure', 'residence'] 
+          2: ['medical_facility', 'residence', 'commute'] 
+          3: ['medical_facility', 'sexual_encounter', 'leisure', 'residence']
+          4: ['medical_facility', 'residence']
+      weekend:
+          0: ['medical_facility', 'leisure', 'residence']
+          1: ['medical_facility', 'leisure', 'residence']
+          2: ['medical_facility', 'leisure', 'residence']
+          3: ['medical_facility', 'residence']
+
+checkpointing:
+  mode: "specific_dates"  # Options: "automatic_interval" or "specific_dates"
+  automatic_interval_days: 7.0
+  specific_dates: # day in the format: 30.0 (Day 30 of simulation) or 2025-09-15
+    - 10
+
+activity_to_super_groups:
+  medical_facility: ["hospitals"]
+  primary_activity: ['schools', 'companies', "universities"]
+  leisure: ['pubs', 'cinemas', 'groceries', 'gyms', "care_home_visits", "household_visits"] 
+  residence: ['households', 'care_homes', 'student_dorms', 'boarding_schools']
+  commute: ['city_transports', 'inter_city_transports']
+  sexual_encounter: ['private_rooms']
