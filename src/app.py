@@ -14,11 +14,16 @@ class application(tk.Frame):
         self.pane.pack(fill="both", expand=True)
 
         leftFrame = tk.Frame(self.pane, bg="#f0f0f0")
-        label = tk.Label(leftFrame, text="Settings")
-        label.pack(pady=20)
+        label = tk.Label(
+            leftFrame, text="Settings", font=("Segoe UI", 14), bg="#f0f0f0"
+        )
+        label.pack(pady=(20, 10))
 
-        self.textBox = tk.Text(leftFrame, wrap="word")
-        self.textBox.pack(padx=10, pady=10, fill="both", expand=True)
+        self.disease_settings(leftFrame)
+        saveButton = tk.Button(
+            leftFrame, text="Save Configuration", command=self.on_run
+        )
+        saveButton.pack(pady=10)
 
         rightFrame = tk.Frame(self.pane, bg="#d9d9d9")
         self.canvas = tkns.NodeCanvas(rightFrame)
@@ -28,17 +33,74 @@ class application(tk.Frame):
         self.pane.add(rightFrame)
 
         menu = tkns.NodeMenu(self.canvas)
-        menu.add_node(label="NodeValue", command=lambda: tkns.NodeValue(self.canvas))
+        menu.add_node(label="Start State", command=lambda: tkns.NodeValue(self.canvas))
         menu.add_node(
-            label="NodeOperation", command=lambda: tkns.NodeOperation(self.canvas)
+            label="Transition State",
+            command=lambda: tkns.NodeOperation(
+                self.canvas, inputs=1, multiple_connection=True
+            ),
         )
         menu.add_node(
-            label="NodeCompile", command=lambda: tkns.NodeCompile(self.canvas)
+            label="End State",
+            command=lambda: tkns.NodeCompile(self.canvas, multiple_connection=True),
         )
 
         self.after(
-            100, lambda: self.pane.sash_place(0, self.master.winfo_width() // 2, 0)
+            100, lambda: self.pane.sash_place(0, self.master.winfo_width() // 3, 0)
         )
+
+    def disease_settings(self, frame):
+        nameLabel = tk.Label(frame, text="Name:", bg="#f0f0f0")
+        nameLabel.pack(anchor="w", padx=10)
+        self.nameEntry = tk.Entry(frame)
+        self.nameEntry.pack(fill="x", padx=10, pady=(0, 10))
+
+        dlsLabel = tk.Label(frame, text="Default Lowest Stage:", bg="#f0f0f0")
+        dlsLabel.pack(anchor="w", padx=10)
+        dlsOptions = [
+            "recovered",
+            "healthy",
+            "exposed",
+            "asymptomatic",
+            "mild",
+            "severe",
+            "hospitalised",
+            "intensive_care",
+            "dead_home",
+            "dead_hospital",
+            "dead_icu",
+        ]
+        self.dlsVar = tk.StringVar(value=dlsOptions[0])
+        dlsMenu = tk.OptionMenu(frame, self.dlsVar, *dlsOptions)
+        dlsMenu.pack(fill="x", padx=10, pady=(0, 10))
+
+        mmstLabel = tk.Label(frame, text="Max Mild Symptom Tag:", bg="#f0f0f0")
+        mmstLabel.pack(anchor="w", padx=10)
+        mmstOptions = [
+            "recovered",
+            "healthy",
+            "exposed",
+            "asymptomatic",
+            "mild",
+            "severe",
+            "hospitalised",
+            "intensive_care",
+            "dead_home",
+            "dead_hospital",
+            "dead_icu",
+        ]
+        self.mmstVar = tk.StringVar(value=mmstOptions[0])
+        mmstMenu = tk.OptionMenu(frame, self.mmstVar, *mmstOptions)
+        mmstMenu.pack(fill="x", padx=10, pady=(0, 10))
+
+    def on_run(self):
+        name = self.nameEntry.get()
+        dls = self.dlsVar.get()
+        mmst = self.mmstVar.get()
+
+        print(f"Name: {name}")
+        print(f"Default Lowest Stage: {dls}")
+        print(f"Max Mild Symptom Tag: {mmst}")
 
 
 def run_app():
