@@ -12,12 +12,13 @@ authors = [
     { name = "Harry Richards", email = "harryrichards2202@gmail.com" }
 ]
 dependencies = [
-    "customtkinter",
-    "tknodesystem"
+    "PyQt5",
+    "NodeGraphQt",
+    "setuptools"
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "black"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
