@@ -1,0 +1,97 @@
+/*
+ * NodeGraph-Inspired Dark Theme for Standard Qt Widgets (Config Pane)
+ * -----------------------------------------------------------------
+ * This style sheet uses dark colors, light text, and subtle highlights
+ * to mimic the aesthetic of a node editing environment.
+ */
+
+/* ================== GLOBAL & WINDOW ================== */
+
+/* Apply to all QWidgets (Base for the Config Pane) */
+QWidget {
+    /* Background color matching a dark graph editor */
+    background-color: #263238; 
+    /* Default text color is light */
+    color: #ECEFF1; 
+    /* Clean, modern font */
+    font-family: "Segoe UI", "Inter", sans-serif;
+    font-size: 10pt;
+}
+
+/* Style the QMainWindow frame itself */
+QMainWindow {
+    border: 1px solid #37474F;
+}
+
+/* ================== LABELS & TEXT ================== */
+
+/* Standard label styling */
+QLabel {
+    color: #CFD8DC;
+    padding: 0;
+    margin-top: 5px;
+    margin-bottom: 2px;
+}
+
+/* Make the main title stand out */
+QLabel#titleLabel { /* Assuming you set objectName="titleLabel" for your main title */
+    font-size: 14pt;
+    font-weight: bold;
+    color: #78909C; /* A slightly subdued, technical highlight color */
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+
+/* ================== INPUT FIELDS ================== */
+
+/* Style for QLineEdit (Text Entry) and QComboBox (Dropdown) */
+QLineEdit, QComboBox {
+    background-color: #37474F; /* Dark input background */
+    color: #ECEFF1;
+    border: 1px solid #455A64; /* Subtle border color */
+    border-radius: 3px;
+    padding: 5px;
+    selection-background-color: #546E7A; /* Highlight color when selecting text */
+}
+
+/* Hover and focus effects for QLineEdit/QComboBox */
+QLineEdit:hover, QComboBox:hover {
+    border: 1px solid #607D8B;
+}
+QLineEdit:focus, QComboBox:focus {
+    border: 1px solid #00BCD4; /* Cyan highlight on focus (technical color) */
+}
+
+/* ================== BUTTONS ================== */
+
+QPushButton {
+    /* Use a highlight color for primary actions */
+    background-color: #00838F; 
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+QPushButton:hover {
+    background-color: #0097A7; /* Slightly lighter on hover */
+}
+
+QPushButton:pressed {
+    background-color: #006064; /* Darker when pressed */
+}
+
+/* ================== SPLITTER ================== */
+
+QSplitter::handle {
+    background-color: #37474F;
+    border: 1px solid #263238;
+}
+
+QSplitter::handle:hover {
+    background-color: #455A64;
+}
