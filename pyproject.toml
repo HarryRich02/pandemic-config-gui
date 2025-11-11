@@ -13,7 +13,8 @@ authors = [
 ]
 dependencies = [
     "PyQt5",
-    "NodeGraphQt"
+    "NodeGraphQt",
+    "setuptools"
 ]
 
 [project.optional-dependencies]
