@@ -1,9 +1,3 @@
-# pandemic-config-gui
+# JUNEbug
 
-A configuration GUI for a pandemic simulation tool.
-
-## Name Ideas
-
-- JUNEBug UI
-- Solstice UI
-- Almeida UI
+UI tool for [JUNE](https://github.com/IDAS-Durham/JUNE)

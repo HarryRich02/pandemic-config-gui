@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pandemic-config-gui"
+name = "JUNEbug"
 version = "0.1.0"
-description = "A configuration GUI for a pandemic simulation tool."
+description = "UI tool for JUNE"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
