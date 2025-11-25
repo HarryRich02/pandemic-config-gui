@@ -2,37 +2,101 @@ from PyQt5 import QtWidgets as QtW
 import NodeGraphQt as NGQt
 
 
-class StartNode(NGQt.BaseNode):
-    __identifier__ = "stages"
-    NODE_NAME = "Start State"
+class DefaultLowestStage(NGQt.BaseNode):
+    __identifier__ = "symptoms"
+    NODE_NAME = "DefaultLowestStage"
 
     def __init__(self):
-        super(StartNode, self).__init__()
+        super(DefaultLowestStage, self).__init__()
+        self.set_name("Lowest Stage")
         self.set_color(40, 150, 40)
-        self.add_output("Next Stage")
+        self.add_output("Completion Time")
+        self.add_text_input("tag", "Value", "0")
 
 
 class TransitionNode(NGQt.BaseNode):
-    __identifier__ = "stages"
-    NODE_NAME = "Transition"
+    __identifier__ = "symptoms"
+    NODE_NAME = "TransitionNode"
 
     def __init__(self):
         super(TransitionNode, self).__init__()
-        self.set_color(220, 160, 20)
-        self.add_input("From Stage")
-        self.add_output("To Stage")
+        self.set_name("Transition Node")
+        self.set_color(40, 150, 40)
+        self.add_input("Previous", multi_input=True)
+        self.add_output("Completion Time")
+        self.add_text_input("tag", "Value", "0")
 
-        self.add_text_input("Prob", "Probability", text="0.1")
 
-
-class EndNode(NGQt.BaseNode):
-    __identifier__ = "stages"
-    NODE_NAME = "End State"
+class TerminalStage(NGQt.BaseNode):
+    __identifier__ = "symptoms"
+    NODE_NAME = "TerminalStage"
 
     def __init__(self):
-        super(EndNode, self).__init__()
+        super(TerminalStage, self).__init__()
+        self.set_name("Terminal Stage")
         self.set_color(180, 40, 40)
-        self.add_input("From Stage")
+        self.add_input("Previous", multi_input=True)
+        self.add_text_input("tag", "Value", "0")
+
+
+class ConstantTime(NGQt.BaseNode):
+    __identifier__ = "transitions"
+    NODE_NAME = "ConstantTime"
+
+    def __init__(self):
+        super(ConstantTime, self).__init__()
+        self.set_name("Constant Time")
+        self.set_color(220, 160, 20)
+        self.add_input("Symptom")
+        self.add_output("Next")
+        self.add_text_input("Val", "Value", text="0.0")
+
+
+class BetaTime(NGQt.BaseNode):
+    __identifier__ = "transitions"
+    NODE_NAME = "BetaTime"
+
+    def __init__(self):
+        super(BetaTime, self).__init__()
+        self.set_name("Beta Time")
+        self.set_color(220, 160, 20)
+        self.add_input("Symptom")
+        self.add_output("Next")
+        self.add_text_input("a", "a", text="0.0")
+        self.add_text_input("b", "b", text="0.0")
+        self.add_text_input("loc", "loc", text="0.0")
+        self.add_text_input("scale", "scale", text="0.0")
+
+
+class LognormalTime(NGQt.BaseNode):
+    __identifier__ = "transitions"
+    NODE_NAME = "LognormalTime"
+
+    def __init__(self):
+        super(LognormalTime, self).__init__()
+        self.set_name("Lognormal Time")
+        self.set_color(220, 160, 20)
+        self.add_input("Symptom")
+        self.add_output("Next")
+        self.add_text_input("s", "s", text="0.0")
+        self.add_text_input("loc", "loc", text="0.0")
+        self.add_text_input("scale", "scale", text="0.0")
+
+
+class ExponweibTime(NGQt.BaseNode):
+    __identifier__ = "transitions"
+    NODE_NAME = "ExponweibTime"
+
+    def __init__(self):
+        super(ExponweibTime, self).__init__()
+        self.set_name("Exponweib Time")
+        self.set_color(220, 160, 20)
+        self.add_input("Symptom")
+        self.add_output("Next")
+        self.add_text_input("a", "a", text="0.0")
+        self.add_text_input("c", "c", text="0.0")
+        self.add_text_input("loc", "loc", text="0.0")
+        self.add_text_input("scale", "scale", text="0.0")
 
 
 class NodeGraphWidget(QtW.QWidget):
@@ -43,10 +107,21 @@ class NodeGraphWidget(QtW.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.graph = NGQt.NodeGraph()
-
         layout.addWidget(self.graph.viewer())
 
-        self.graph.register_nodes([StartNode, TransitionNode, EndNode])
+        # 1. Register Nodes
+        self.graph.register_nodes(
+            [
+                DefaultLowestStage,
+                TransitionNode,
+                TerminalStage,
+                ConstantTime,
+                BetaTime,
+                LognormalTime,
+                ExponweibTime,
+            ]
+        )
+
         self.graph.set_background_color(38, 50, 56)
         self.graph.set_grid_color(55, 71, 79)
 
@@ -54,20 +129,20 @@ class NodeGraphWidget(QtW.QWidget):
 
     def _setup_context_menu(self):
         graph_menu = self.graph.get_context_menu("graph")
-        stage_menu = graph_menu.add_menu("stages")
 
-        func_start = lambda: self.graph.create_node(
-            StartNode.__identifier__ + "." + StartNode.__name__
-        )
+        symptom_menu = graph_menu.add_menu("Symptom Nodes")
 
-        func_transition = lambda: self.graph.create_node(
-            TransitionNode.__identifier__ + "." + TransitionNode.__name__
-        )
+        def create_cmd(node_class):
+            node_key = node_class.__identifier__ + "." + node_class.__name__
+            return lambda: self.graph.create_node(node_key)
 
-        func_end = lambda: self.graph.create_node(
-            EndNode.__identifier__ + "." + EndNode.__name__
-        )
+        symptom_menu.add_command("Lowest Stage", create_cmd(DefaultLowestStage))
+        symptom_menu.add_command("Transition Node", create_cmd(TransitionNode))
+        symptom_menu.add_command("Terminal Stage", create_cmd(TerminalStage))
 
-        stage_menu.add_command(StartNode.NODE_NAME, func_start)
-        stage_menu.add_command(TransitionNode.NODE_NAME, func_transition)
-        stage_menu.add_command(EndNode.NODE_NAME, func_end)
+        trans_menu = graph_menu.add_menu("Transition Nodes")
+
+        trans_menu.add_command("Constant Time", create_cmd(ConstantTime))
+        trans_menu.add_command("Beta Time", create_cmd(BetaTime))
+        trans_menu.add_command("Lognormal Time", create_cmd(LognormalTime))
+        trans_menu.add_command("Exponweib Time", create_cmd(ExponweibTime))
