@@ -109,7 +109,6 @@ class NodeGraphWidget(QtW.QWidget):
         self.graph = NGQt.NodeGraph()
         layout.addWidget(self.graph.viewer())
 
-        # 1. Register Nodes
         self.graph.register_nodes(
             [
                 DefaultLowestStage,
