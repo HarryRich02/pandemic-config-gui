@@ -12,9 +12,10 @@ authors = [
     { name = "Harry Richards", email = "harryrichards2202@gmail.com" }
 ]
 dependencies = [
+    "setuptools",
     "PyQt5",
     "NodeGraphQt",
-    "setuptools"
+    "pyyaml"
 ]
 
 [project.optional-dependencies]
