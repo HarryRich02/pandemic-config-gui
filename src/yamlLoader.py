@@ -11,7 +11,7 @@ def log(message):
 def load_config(file_path, config_panel, graph_widget):
     log(f"Loading configuration from: {file_path}")
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
     except Exception as e:
         log(f"Error opening YAML file: {e}")

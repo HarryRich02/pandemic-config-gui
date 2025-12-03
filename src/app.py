@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 import graph
 import configPanel
 import yamlLoader
+import json  # Import the json module
 
 
 class MainWindow(QtW.QMainWindow):
@@ -34,9 +35,24 @@ class MainWindow(QtW.QMainWindow):
         load_action.triggered.connect(self.on_import_yaml)
         file_menu.addAction(load_action)
 
+        # ADDED: Action to import NodeGraph JSON session
+        import_json_action = QtW.QAction("Import JSON...", self)
+        import_json_action.triggered.connect(self.on_import_json)
+        file_menu.addAction(import_json_action)
+
     def handle_config_save(self, config_data):
         print("MainWindow received saved config.")
         graph_data = self.right_panel.graph.serialize_session()
+
+        # Save the serialized nodegraph data to a file
+        output_filename = "nodegraph_session.json"
+        try:
+            with open(output_filename, "w") as f:
+                # Use json.dump for clean, indented output
+                json.dump(graph_data, f, indent=4)
+            print(f"NodeGraph session successfully saved to: {output_filename}")
+        except Exception as e:
+            print(f"Error saving NodeGraph session to file: {e}")
 
     def on_import_yaml(self):
         file_path, _ = QtW.QFileDialog.getOpenFileName(
@@ -47,6 +63,25 @@ class MainWindow(QtW.QMainWindow):
             graph_widget = self.right_panel
 
             yamlLoader.load_config(file_path, config_panel, graph_widget)
+
+    # ADDED: Method to import NodeGraph JSON session
+    def on_import_json(self):
+        file_path, _ = QtW.QFileDialog.getOpenFileName(
+            self, "Open NodeGraph Session", "", "JSON Files (*.json)"
+        )
+        if file_path:
+            print(f"Loading NodeGraph session from: {file_path}")
+            try:
+                with open(file_path, "r") as f:
+                    data = json.load(f)
+
+                self.right_panel.graph.deserialize_session(data)
+                print("NodeGraph session successfully loaded.")
+            except Exception as e:
+                print(f"Error loading JSON file: {e}")
+                QtW.QMessageBox.critical(
+                    self, "Error", f"Failed to load NodeGraph session:\n{e}"
+                )
 
 
 def run_app():
