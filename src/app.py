@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 
 import graph
 import configPanel
+import yamlLoader
 
 
 class MainWindow(QtW.QMainWindow):
@@ -26,9 +27,26 @@ class MainWindow(QtW.QMainWindow):
 
         self.setCentralWidget(self.splitter)
 
+        menu_bar = self.menuBar()
+        file_menu = menu_bar.addMenu("File")
+
+        load_action = QtW.QAction("Import YAML...", self)
+        load_action.triggered.connect(self.on_import_yaml)
+        file_menu.addAction(load_action)
+
     def handle_config_save(self, config_data):
         print("MainWindow received saved config.")
         graph_data = self.right_panel.graph.serialize_session()
+
+    def on_import_yaml(self):
+        file_path, _ = QtW.QFileDialog.getOpenFileName(
+            self, "Open Config File", "", "YAML Files (*.yaml *.yml)"
+        )
+        if file_path:
+            config_panel = self.splitter.widget(0)
+            graph_widget = self.right_panel
+
+            yamlLoader.load_config(file_path, config_panel, graph_widget)
 
 
 def run_app():
