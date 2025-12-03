@@ -1,11 +1,10 @@
 import yaml
 import traceback
 from collections import defaultdict
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 
 
 def log(message):
-    """Helper to print basic status messages."""
     print(f"[JUNEbug] {message}", flush=True)
 
 
@@ -23,11 +22,13 @@ def load_config(file_path, config_panel, graph_widget):
         log("Error: YAML file does not contain a 'disease' section.")
         return
 
+    # 1. Update Config Panel
     try:
         _update_config_panel(config_panel, disease)
     except Exception as e:
         log(f"Error updating config panel: {e}")
 
+    # 2. Update Node Graph
     try:
         _update_graph(graph_widget, disease)
         log("Graph updated and layout complete.")
@@ -109,7 +110,6 @@ def _update_graph(graph_widget, disease):
     for t_idx, traj in enumerate(trajectories):
         stages = traj.get("stages", [])
         previous_node = None
-
         trajectory_tag_counts = defaultdict(int)
 
         for i, stage in enumerate(stages):
@@ -127,7 +127,6 @@ def _update_graph(graph_widget, disease):
                     node_type = "symptoms.TerminalStage"
 
                 current_node = graph.create_node(node_type, push_undo=False)
-
                 new_name = f"{tag} {count}"
                 current_node.set_name(new_name)
 
@@ -136,7 +135,6 @@ def _update_graph(graph_widget, disease):
                     current_node.set_property("tag", str(numeric_val), push_undo=False)
                 except:
                     pass
-
                 current_node.set_color(40, 150, 250)
 
             if not current_node:
@@ -163,7 +161,7 @@ def _update_graph(graph_widget, disease):
                 if existing_time_node:
                     pass
                 else:
-                    time_node = _create_time_node(graph, comp_data)
+                    time_node = _create_time_node(graph_widget, comp_data)
                     time_node.set_name(f"{prev_name} -> {curr_name}")
 
                     time_nodes_cache[cache_key].append((time_node, comp_data))
@@ -176,7 +174,7 @@ def _update_graph(graph_widget, disease):
                             current_node.input(0), push_undo=False
                         )
                     except Exception:
-                        log(f"Warning: Failed to connect {prev_name} -> {curr_name}")
+                        pass
 
                 QtWidgets.QApplication.processEvents()
 
@@ -189,48 +187,51 @@ def _update_graph(graph_widget, disease):
 
     graph.viewer().update()
 
+    # 4. FINAL VISIBILITY REFRESH
+    # Call a helper that iterates ALL nodes and updates visibility.
+    # Delay by 200ms to ensure graph is fully settled.
+    QtCore.QTimer.singleShot(200, lambda: _finalize_visibility(graph_widget))
 
-def _create_time_node(graph, comp_data):
-    """Creates a new TimeNode based on distribution type."""
+
+def _finalize_visibility(graph_widget):
+    log("Running final visibility refresh...")
+    graph = graph_widget.graph
+    for node in graph.all_nodes():
+        if node.type_ == "transitions.UniversalTimeNode":
+            if hasattr(graph_widget, "update_node_visibility"):
+                graph_widget.update_node_visibility(node)
+
+
+def _create_time_node(graph_widget, comp_data):
+    graph = graph_widget.graph
+    node = graph.create_node("transitions.UniversalTimeNode", push_undo=False)
+
     dist_type = comp_data.get("type", "constant")
-
-    type_map_entry = "transitions.ConstantTime"
-
-    if dist_type != "normal":
-        type_map = {
-            "constant": "transitions.ConstantTime",
-            "beta": "transitions.BetaTime",
-            "lognormal": "transitions.LognormalTime",
-            "exponweib": "transitions.ExponweibTime",
-        }
-        type_map_entry = type_map.get(dist_type, "transitions.ConstantTime")
-
-    node = graph.create_node(type_map_entry, push_undo=False)
+    if dist_type not in [
+        "constant",
+        "normal",
+        "lognormal",
+        "beta",
+        "gamma",
+        "exponweib",
+    ]:
+        dist_type = "constant"
+    node.set_property("type", dist_type, push_undo=False)
 
     for k, v in comp_data.items():
         if k == "type":
             continue
 
         prop_name = k
-        if type_map_entry.endswith("ConstantTime") and k in ["value", "loc"]:
+        if k == "value":
             prop_name = "Val"
-        if (
-            dist_type == "normal"
-            and type_map_entry.endswith("ConstantTime")
-            and k == "loc"
-        ):
+        elif k == "loc" and dist_type in ["normal", "constant"]:
             prop_name = "Val"
 
-        if prop_name in node.properties().keys():
-            try:
-                node.set_property(prop_name, str(v), push_undo=False)
-            except Exception:
-                pass
-        else:
-            try:
-                node.set_property(prop_name, str(v), push_undo=False)
-            except Exception:
-                pass
+        try:
+            node.set_property(prop_name, str(v), push_undo=False)
+        except Exception:
+            pass
 
     return node
 
@@ -238,13 +239,10 @@ def _create_time_node(graph, comp_data):
 def _is_data_equal(data_a, data_b):
     if data_a.get("type") != data_b.get("type"):
         return False
-
     keys_a = set(k for k in data_a.keys() if k != "type")
     keys_b = set(k for k in data_b.keys() if k != "type")
-
     if keys_a != keys_b:
         return False
-
     for k in keys_a:
         val_a, val_b = data_a[k], data_b[k]
         if val_a == val_b:
