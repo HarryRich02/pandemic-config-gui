@@ -12,7 +12,7 @@ def log(message):
 def load_config(file_path, config_panel, graph_widget):
     log(f"Loading configuration from: {file_path}")
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
     except Exception as e:
         log(f"Error opening YAML file: {e}")
@@ -194,16 +194,15 @@ def _create_time_node(graph, comp_data):
     """Creates a new TimeNode based on distribution type."""
     dist_type = comp_data.get("type", "constant")
 
-    type_map_entry = "transitions.ConstantTime"
+    type_map = {
+        "constant": "transitions.ConstantTime",
+        "normal": "transitions.NormalTime",
+        "beta": "transitions.BetaTime",
+        "lognormal": "transitions.LognormalTime",
+        "exponweib": "transitions.ExponweibTime",
+    }
 
-    if dist_type != "normal":
-        type_map = {
-            "constant": "transitions.ConstantTime",
-            "beta": "transitions.BetaTime",
-            "lognormal": "transitions.LognormalTime",
-            "exponweib": "transitions.ExponweibTime",
-        }
-        type_map_entry = type_map.get(dist_type, "transitions.ConstantTime")
+    type_map_entry = type_map.get(dist_type, "transitions.ConstantTime")
 
     node = graph.create_node(type_map_entry, push_undo=False)
 
@@ -212,13 +211,8 @@ def _create_time_node(graph, comp_data):
             continue
 
         prop_name = k
+
         if type_map_entry.endswith("ConstantTime") and k in ["value", "loc"]:
-            prop_name = "Val"
-        if (
-            dist_type == "normal"
-            and type_map_entry.endswith("ConstantTime")
-            and k == "loc"
-        ):
             prop_name = "Val"
 
         if prop_name in node.properties().keys():

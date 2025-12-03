@@ -52,6 +52,20 @@ class ConstantTime(NGQt.BaseNode):
         self.add_text_input("Val", "Value", text="0.0")
 
 
+class NormalTime(NGQt.BaseNode):
+    __identifier__ = "transitions"
+    NODE_NAME = "NormalTime"
+
+    def __init__(self):
+        super(NormalTime, self).__init__()
+        self.set_name("Normal Time")
+        self.set_color(220, 160, 20)
+        self.add_input("Symptom")
+        self.add_output("Next")
+        self.add_text_input("loc", "loc", text="0.0")
+        self.add_text_input("scale", "scale", text="0.0")
+
+
 class BetaTime(NGQt.BaseNode):
     __identifier__ = "transitions"
     NODE_NAME = "BetaTime"
@@ -115,6 +129,7 @@ class NodeGraphWidget(QtW.QWidget):
                 TransitionNode,
                 TerminalStage,
                 ConstantTime,
+                NormalTime,
                 BetaTime,
                 LognormalTime,
                 ExponweibTime,
@@ -142,6 +157,7 @@ class NodeGraphWidget(QtW.QWidget):
         trans_menu = graph_menu.add_menu("Transition Nodes")
 
         trans_menu.add_command("Constant Time", create_cmd(ConstantTime))
+        trans_menu.add_command("Normal Time", create_cmd(NormalTime))
         trans_menu.add_command("Beta Time", create_cmd(BetaTime))
         trans_menu.add_command("Lognormal Time", create_cmd(LognormalTime))
         trans_menu.add_command("Exponweib Time", create_cmd(ExponweibTime))
